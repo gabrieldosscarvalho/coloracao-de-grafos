@@ -1,0 +1,73 @@
+{
+    "nodes": [
+        {
+            "name": "A",
+            "width": 60,
+            "height": 40
+        },
+        {
+            "name": "B",
+            "width": 60,
+            "height": 40
+        },
+        {
+            "name": "C",
+            "width": 60,
+            "height": 40
+        },
+        {
+            "name": "D",
+            "width": 60,
+            "height": 40
+        },
+        {
+            "name": "E",
+            "width": 60,
+            "height": 40
+        },
+        {
+            "name": "F",
+            "width": 60,
+            "height": 40
+        },
+        {
+            "name": "G",
+            "width": 60,
+            "height": 40
+        }
+    ],
+    "links": [
+        {
+            "source": 0,
+            "target": 1
+        },
+        {
+            "source": 1,
+            "target": 2
+        },
+        {
+            "source": 1,
+            "target": 4
+        },
+        {
+            "source": 2,
+            "target": 3
+        },
+        {
+            "source": 2,
+            "target": 4
+        },
+        {
+            "source": 4,
+            "target": 5
+        },
+        {
+            "source": 4,
+            "target": 6
+        },
+        {
+            "source": 5,
+            "target": 6
+        }
+    ]
+}

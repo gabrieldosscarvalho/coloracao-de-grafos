@@ -21,6 +21,11 @@ Problema COLORAÇÃO DE GRAFOS
 ### Escopo do Trabalho:
 
 Escreva um código que resolva o grafo acima para o problema de 3 cores.
-Edit me to generate
+
+### Como rodar:
+
+Rode o projeto dentro de um servidor HTTP e acesse o arquivo index.hmtl pelo navegador.
+
+Ex.: `http://localhost/index.html`
 
 ---

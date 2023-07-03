@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <title>Problema: COLORAÇÃO DE GRAFOS</title>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/tgdwyer/WebCola/WebCola/cola.min.js"></script>
+
+    <style>
+      .node {
+        stroke: #fff;
+        stroke-width: 1.5px;
+        cursor: move;
+      }
+
+      .link {
+        stroke: #999;
+        stroke-width: 3px;
+        stroke-opacity: 1;
+      }
+
+      .label {
+        fill: white;
+        font-family: Verdana;
+        font-size: 25px;
+        text-anchor: middle;
+        cursor: move;
+      }
+    </style>
+
+    <script>
+      class MapColors {
+        constructor(graph, color) {
+          this.colors = [];
+          this.nodes = {};
+          this.links = this.getLinks(graph);
+
+          for (const node of graph.nodes) {
+            console.log({ node });
+            this.bindColor(node.name);
+          }
+        }
+
+        bindColor(nodeName) {
+          for (const currentColor of this.colors) {
+            let usedColor = false;
+
+            for (const link of this.links[nodeName]) {
+              usedColor = this.nodes[link] === currentColor;
+
+              if (usedColor) {
+                break;
+              }
+            }
+
+            if (!usedColor) {
+              this.nodes[nodeName] = currentColor;
+              return;
+            }
+          }
+
+          this.colors.push(this.generateColor());
+
+          this.nodes[nodeName] = this.colors[this.colors.length - 1];
+        }
+
+        generateColor() {
+          return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+        }
+
+        getLinks(graph) {
+          const links = {};
+
+          graph.nodes.forEach((node, nodeIndex) => {
+            const nodeName = node.name;
+
+            links[nodeName] = graph.links.reduce((_links, graphLink) => {
+              switch (nodeIndex) {
+                case graphLink.source:
+                  if (!_links.includes(graph.nodes[graphLink.target].name)) {
+                    _links.push(graph.nodes[graphLink.target].name);
+                  }
+                  break;
+
+                case graphLink.target:
+                  if (!_links.includes(graph.nodes[graphLink.source].name)) {
+                    _links.push(graph.nodes[graphLink.source].name);
+                  }
+                  break;
+              }
+
+              return _links;
+            }, []);
+          });
+
+          return links;
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>Problema: COLORAÇÃO DE GRAFOS</h1>
+
+    <script>
+      var MAP_COLORS = [];
+
+      var width = 960,
+        height = 500;
+
+      var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+      var cola = cola
+        .d3adaptor(d3)
+        .linkDistance(120)
+        .avoidOverlaps(true)
+        .size([width, height]);
+
+      var svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      function addColor(graph) {
+        MAP_COLORS.push(color(MAP_COLORS.length++));
+      }
+
+      function getColor(graph) {
+        MAP_COLORS.push(color(MAP_COLORS.length++));
+
+        return color(1);
+      }
+
+      d3.json("nodes.json", function (error, graph) {
+        const mapColors = new MapColors(graph, color);
+
+        console.log({
+          graph,
+          mapColors,
+        });
+
+        document.querySelector("#resultado").innerHTML += `
+          Total de cores utilizadas: <strong>${mapColors.colors.length}</strong>
+          <ol>
+            ${mapColors.colors
+              .map(
+                (color) =>
+                  `<li style='color: ${color}'><strong>${color}</strong></li>`
+              )
+              .join("")}
+            </ol>
+        `;
+
+        cola.nodes(graph.nodes).links(graph.links).start();
+
+        var link = svg
+          .selectAll(".link")
+          .data(graph.links)
+          .enter()
+          .append("line")
+          .attr("class", "link");
+
+        var node = svg
+          .selectAll(".node")
+          .data(graph.nodes)
+          .enter()
+          .append("rect")
+          .attr("class", "node")
+          .attr("width", function (d) {
+            return d.width;
+          })
+          .attr("height", function (d) {
+            return d.height;
+          })
+          .attr("rx", 5)
+          .attr("ry", 5)
+          .style("fill", function (d) {
+            return mapColors.nodes[d.name];
+          })
+          .call(cola.drag);
+
+        var label = svg
+          .selectAll(".label")
+          .data(graph.nodes)
+          .enter()
+          .append("text")
+          .attr("class", "label")
+          .text(function (d) {
+            return d.name;
+          })
+          .call(cola.drag);
+
+        node.append("title").text(function (d) {
+          return d.name;
+        });
+
+        cola.on("tick", function () {
+          link
+            .attr("x1", function (d) {
+              return d.source.x;
+            })
+            .attr("y1", function (d) {
+              return d.source.y;
+            })
+            .attr("x2", function (d) {
+              return d.target.x;
+            })
+            .attr("y2", function (d) {
+              return d.target.y;
+            });
+
+          node
+            .attr("x", function (d) {
+              return d.x - d.width / 2;
+            })
+            .attr("y", function (d) {
+              return d.y - d.height / 2;
+            });
+
+          label
+            .attr("x", function (d) {
+              return d.x;
+            })
+            .attr("y", function (d) {
+              var h = this.getBBox().height;
+              return d.y + h / 4;
+            });
+        });
+      });
+    </script>
+
+    <p id="resultado" style="font-size: 2rem; margin-top: 3rem"></p>
+  </body>
+</html>
